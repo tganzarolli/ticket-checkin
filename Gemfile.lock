@@ -1,23 +1,27 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    couchrest (1.0.2)
-      json (~> 1.5.1)
+    couchrest (1.1.3)
       mime-types (~> 1.15)
+      multi_json (~> 1.0)
       rest-client (~> 1.6.1)
-    haml (3.1.1)
-    hpricot (0.8.4)
-    json (1.5.1)
-    mime-types (1.16)
-    oauth (0.4.4)
-    rack (1.2.2)
-    rest-client (1.6.1)
+    haml (3.1.7)
+    hpricot (0.8.6)
+    json (1.7.5)
+    mime-types (1.19)
+    multi_json (1.3.6)
+    oauth (0.4.7)
+    rack (1.4.1)
+    rack-protection (1.2.0)
+      rack
+    rest-client (1.6.7)
       mime-types (>= 1.16)
     ruby-hmac (0.4.0)
-    sinatra (1.2.3)
-      rack (~> 1.1)
-      tilt (>= 1.2.2, < 2.0)
-    tilt (1.2.2)
+    sinatra (1.3.3)
+      rack (~> 1.3, >= 1.3.6)
+      rack-protection (~> 1.2)
+      tilt (~> 1.3, >= 1.3.3)
+    tilt (1.3.3)
 
 PLATFORMS
   ruby

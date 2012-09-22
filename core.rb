@@ -100,6 +100,9 @@ get '/apontador_login_callback' do
 
 end
 
+get '/baboo' do
+  puts find_place 'Scheiße vila olimpia'
+end
 
 get '/auto_checkin/:place_id' do
   raise Exception, "Sem place id" unless params[:place_id]
@@ -108,7 +111,7 @@ end
 
 get '/checkin/:place_id' do
   puts "---------------CHECKIN -------------"
-  user = {'access_token' => session[:user]['oauth_token'], 'access_secret' => session[:user]['oauth_token_secret']}
+  user = {'access_token' => session[:user]['oauth_token'], 'access_secret' => session[:user]['oauth_token_secret'], '4sq_token' => session[:user]['4sq_token']}
   perform_checkin user, params[:place_id]
   "checkin efetuado com sucesso"
 end
@@ -159,12 +162,18 @@ def check_user response, params
       doc = @db.get(userid)
       session[:user][:phone] = doc['phone']
       session[:user][:phone_verifier] = doc['phone_verifier']
+      if check_map['external_keys'] && check_map['external_keys']['Foursquare']
+        session[:user]['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+      end
     rescue Exception => e
       doc = {'_id' => check_map['id'], :type => 'user', :name => check_map['name']}
     end
     doc['access_token'] = check_map['oauth_token']
     doc['access_secret'] = check_map['oauth_token_secret']
-    doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    if check_map['external_keys'] && check_map['external_keys']['Foursquare']
+      doc['4sq_token'] = check_map['external_keys']['Foursquare']['oauth_token']
+    end
+    doc['token'] = token
     @db.save_doc(doc)
     redirect params[:url] if params[:url]
   rescue Exception => e
@@ -177,7 +186,11 @@ def checkin_all
   @db.view('users/all')['rows'].each do |row|
     user = row['value']
     puts user['name']
-    checkin user
+    begin
+      checkin user
+    rescue Exception => e
+      puts e
+    end
   end
 end
 
@@ -215,7 +228,7 @@ private
     expense_array.each do |expense|
       expense_hash = JSON.parse(expense.to_json)['expense']
       begin
-        if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description]})['rows'].length == 0
+        if @db.view('unique_expenses/by_date_amount_and_desc', {'key' => [expense.date,expense.amount,expense.description,ticket_number]})['rows'].length == 0
           puts expense.to_json
           place_id = find_place expense.description
           if not place_id
